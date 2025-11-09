@@ -12,9 +12,35 @@ except Exception:
 with col2:
     st.markdown(
         """
-        <div style='display: flex; align-items: center; gap: 10px; height: 100%; margin-top: 10px;'>
+        <style>
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        .live-badge {
+            display: flex;
+            align-items: center;
+            background-color: #d32f2f;
+            color: white;
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ff5252;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        </style>
+        <div style='display: flex; align-items: center; gap: 12px; height: 100%; margin-top: 10px;'>
             <h1 style='margin: 0;'>Live Match Viewer</h1>
-            <span style='background-color: #e53935; color: white; padding: 4px 10px; border-radius: 8px; font-weight: bold; font-size: 14px;'>LIVE 🔴</span>
+            <div class='live-badge'><div class='live-dot'></div>LIVE</div>
         </div>
         """,
         unsafe_allow_html=True,
