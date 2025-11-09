@@ -2,7 +2,7 @@ import streamlit as st
 import requests, json, time
 
 st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
-st.image("pickleballrandom.png", use_container_width=False, width=150)
+st.image("assets/pickleballrandom.png", use_container_width=False, width=150)
 st.title("🏓 Live Match Viewer")
 
 query = st.experimental_get_query_params()
