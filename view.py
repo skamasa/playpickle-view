@@ -2,8 +2,7 @@ import streamlit as st
 import requests, json, time
 
 st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
-st.image("assets/pickleballrandom.png", use_container_width=False, width=150)
-st.title("🏓 Live Match Viewer")
+st.title("![logo](assets/pickleballrandom.png) Live Match Viewer")
 
 query = st.experimental_get_query_params()
 room_id = query.get("room_id", [None])[0]
@@ -41,7 +40,7 @@ benched = data.get("benched", [])
 with placeholder.container():
     group_name = data.get("group_name", "Unknown Group")
     timestamp = data.get("updated", "Unknown Time")
-    st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**  🕒 {timestamp}")
+    st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**  \n🕒 {timestamp}")
     st.subheader(f"🏓 Round {round_no}")
 
     for i, court in enumerate(courts, 1):
