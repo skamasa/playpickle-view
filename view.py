@@ -2,6 +2,7 @@ import streamlit as st
 import requests, json, time
 
 st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
+st.image("pickleballrandom.png", use_container_width=False, width=150)
 st.title("🏓 Live Match Viewer")
 
 query = st.experimental_get_query_params()
@@ -55,7 +56,7 @@ with placeholder.container():
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; font-size: 14px; color: gray;'>"
-    "🏓 Powered by <strong>PlayPickle</strong> • Created by <strong>Sai Kamasani</strong>"
+    "🏓 Powered by <strong>PlayPickle</strong> • Created by <strong>Sai Kamasani 🧠</strong>"
     "</div>",
     unsafe_allow_html=True,
 )
