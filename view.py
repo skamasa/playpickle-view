@@ -17,7 +17,6 @@ DATA_URL = f"https://raw.githubusercontent.com/skamasa/playpickle-data/main/room
 
 refresh_sec = 10
 st.caption(f"Auto-refreshes every {refresh_sec} seconds")
-st_autorefresh = st.autorefresh(interval=refresh_sec * 1000, key="auto_refresh_viewer")
 
 placeholder = st.empty()
 
@@ -60,3 +59,7 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True,
 )
+
+# ---- Auto-refresh (fallback) ----
+time.sleep(refresh_sec)
+st.rerun()
