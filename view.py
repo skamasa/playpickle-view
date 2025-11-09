@@ -41,7 +41,7 @@ benched = data.get("benched", [])
 with placeholder.container():
     group_name = data.get("group_name", "Unknown Group")
     timestamp = data.get("updated", "Unknown Time")
-    st.markdown(f"### Come ON: **{group_name}**  🕒  {timestamp}")
+    st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**  🕒 {timestamp}")
     st.subheader(f"🏓 Round {round_no}")
 
     for i, court in enumerate(courts, 1):
