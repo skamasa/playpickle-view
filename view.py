@@ -16,6 +16,7 @@ DATA_URL = f"https://raw.githubusercontent.com/skamasa/playpickle-data/main/room
 
 refresh_sec = 10
 st.caption(f"Auto-refreshes every {refresh_sec} seconds")
+st_autorefresh = st.autorefresh(interval=refresh_sec * 1000, key="auto_refresh_viewer")
 
 placeholder = st.empty()
 
@@ -28,26 +29,33 @@ def fetch_data():
     except Exception:
         return None
 
-while True:
-    data = fetch_data()
-    if not data:
-        placeholder.info("⌛ Waiting for game data...")
-        time.sleep(refresh_sec)
-        st.rerun()
+data = fetch_data()
+if not data:
+    placeholder.info("⌛ Waiting for game data...")
+    st.stop()
 
-    round_no = data.get("round", "?")
-    courts = data.get("courts", [])
-    benched = data.get("benched", [])
+round_no = data.get("round", "?")
+courts = data.get("courts", [])
+benched = data.get("benched", [])
 
-    with placeholder.container():
-        st.markdown(f"### Room: `{room_id}`")
-        st.subheader(f"🏓 Round {round_no}")
-        for i, court in enumerate(courts, 1):
-            if len(court) == 4:
-                st.write(f"🏟️ Court {i}: **{court[0]} + {court[1]}** vs **{court[2]} + {court[3]}**")
-        if benched:
-            st.write(f"🪑 Benched: {', '.join(benched)}")
-        st.caption(f"Last updated: {data.get('updated', '')}")
+with placeholder.container():
+    st.markdown(f"### Room: `{room_id}`")
+    st.subheader(f"🏓 Round {round_no}")
 
-    time.sleep(refresh_sec)
-    st.rerun()
+    for i, court in enumerate(courts, 1):
+        if len(court) == 4:
+            st.write(f"🏟️ Court {i}: **{court[0]} + {court[1]}** vs **{court[2]} + {court[3]}**")
+
+    if benched:
+        st.write(f"🪑 Benched: {', '.join(benched)}")
+
+    st.caption(f"⏱️ Last updated: {data.get('updated', 'N/A')}")
+
+# Branding footer
+st.markdown("---")
+st.markdown(
+    "<div style='text-align: center; font-size: 14px; color: gray;'>"
+    "🏓 Powered by <strong>PlayPickle</strong> • Created by <strong>Sai Kamasani</strong>"
+    "</div>",
+    unsafe_allow_html=True,
+)
