@@ -37,6 +37,13 @@ with col2:
             border-radius: 50%;
             margin-right: 6px;
         }
+        [data-testid="stAppViewContainer"] {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        h1, h2, h3, h4, h5, h6, p, div, span {
+            color: var(--text-color);
+        }
         </style>
         <div style='display: flex; align-items: center; gap: 12px; height: 100%; margin-top: 10px;'>
             <h1 style='margin: 0;'>Live Match Viewer</h1>
