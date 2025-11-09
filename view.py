@@ -1,10 +1,14 @@
 import streamlit as st
 import requests, json, time
+from PIL import Image
 
 st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
 col1, col2 = st.columns([1, 8])
-with col1:
-    st.markdown("<div style='display: flex; align-items: center; justify-content: center; height: 100%;'><img src='assets/pickleballrandom.png' width='70'></div>", unsafe_allow_html=True)
+try:
+    logo = Image.open("assets/pickleballrandom.png")
+    col1.image(logo, width=70)
+except Exception:
+    col1.markdown("<div style='color: gray; font-size: 14px;'>[Logo not found]</div>", unsafe_allow_html=True)
 with col2:
     st.markdown("<h1 style='display: flex; align-items: center; height: 100%; margin-top: 10px;'>Live Match Viewer</h1>", unsafe_allow_html=True)
 
