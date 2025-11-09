@@ -39,7 +39,9 @@ courts = data.get("courts", [])
 benched = data.get("benched", [])
 
 with placeholder.container():
-    st.markdown(f"### Room: `{room_id}`")
+    group_name = data.get("group_name", "Unknown Group")
+    timestamp = data.get("updated", "Unknown Time")
+    st.markdown(f"### Group: **{group_name}**  🕒  {timestamp}")
     st.subheader(f"🏓 Round {round_no}")
 
     for i, court in enumerate(courts, 1):
