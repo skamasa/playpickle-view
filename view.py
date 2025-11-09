@@ -33,7 +33,7 @@ while True:
     if not data:
         placeholder.info("⌛ Waiting for game data...")
         time.sleep(refresh_sec)
-        st.experimental_rerun()
+        st.rerun()
 
     round_no = data.get("round", "?")
     courts = data.get("courts", [])
@@ -50,4 +50,4 @@ while True:
         st.caption(f"Last updated: {data.get('updated', '')}")
 
     time.sleep(refresh_sec)
-    st.experimental_rerun()
+    st.rerun()
