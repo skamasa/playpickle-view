@@ -10,8 +10,15 @@ try:
 except Exception:
     col1.markdown("<div style='color: gray; font-size: 14px;'>[Logo not found]</div>", unsafe_allow_html=True)
 with col2:
-    st.markdown("<h1 style='display: flex; align-items: center; height: 100%; margin-top: 10px;'>Live Match Viewer</h1>", unsafe_allow_html=True)
-
+    st.markdown(
+        """
+        <div style='display: flex; align-items: center; gap: 10px; height: 100%; margin-top: 10px;'>
+            <h1 style='margin: 0;'>Live Match Viewer</h1>
+            <span style='background-color: #e53935; color: white; padding: 4px 10px; border-radius: 8px; font-weight: bold; font-size: 14px;'>LIVE 🔴</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 query = st.experimental_get_query_params()
 room_id = query.get("room_id", [None])[0]
 
