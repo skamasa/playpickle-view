@@ -119,6 +119,7 @@ group_name = data.get("group_name", "Unknown Group")
 timestamp = data.get("timestamp", "Unknown Time")
 st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**")
 st.subheader(f"🏓 Round {round_no}")
+st.markdown("🏓 Want to see who’s serving next? Tap **Refresh Now** to view the current round!")
 if st.button("🔄 Refresh Now"):
     st.rerun()
 
