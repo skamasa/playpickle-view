@@ -1,16 +1,6 @@
 import streamlit as st
 import requests, json, time
 
-refresh_interval = 5  # seconds
-try:
-    st_autorefresh = st.autorefresh(interval=refresh_interval * 1000, key="auto_refresh_viewer")
-except Exception:
-    if "last_refresh" not in st.session_state:
-        st.session_state.last_refresh = time.time()
-    elif time.time() - st.session_state.last_refresh > refresh_interval:
-        st.session_state.last_refresh = time.time()
-        st.rerun()
-
 from PIL import Image
 import firebase_admin
 from firebase_admin import credentials, db
@@ -71,6 +61,8 @@ if not code:
     code = st.text_input("Enter 3-digit match code:", max_chars=3).strip()
     if not code:
         st.stop()
+
+st_autorefresh = st.autorefresh(interval=REFRESH_SEC * 1000, key="live_refresh")
 
 if "last_refresh_ts" not in st.session_state:
     st.session_state.last_refresh_ts = 0.0
