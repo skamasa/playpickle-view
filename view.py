@@ -63,7 +63,9 @@ if not room_id:
 
 def init_firebase():
     if not firebase_admin._apps:
-        key_data = json.loads(st.secrets["FIREBASE_KEY"])
+        import base64
+        key_json = base64.b64decode(st.secrets["FIREBASE_KEY_B64"]).decode("utf-8")
+        key_data = json.loads(key_json)
         cred = credentials.Certificate(key_data)
         firebase_admin.initialize_app(cred, {
             "databaseURL": st.secrets["FIREBASE_DB_URL"]
