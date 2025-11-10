@@ -47,19 +47,17 @@ with col2:
             color: var(--text-color);
         }
         </style>
-        <div style='display: flex; align-items: center; gap: 12px; height: 100%; margin-top: 10px;'>
-            <h1 style='margin: 0;'>Live Match Viewer</h1>
-            <div class='live-badge'><div class='live-dot'></div>LIVE</div>
-        </div>
         """,
         unsafe_allow_html=True,
     )
-query = st.experimental_get_query_params()
-room_id = query.get("room_id", [None])[0]
 
-if not room_id:
-    st.warning("❗ No room ID provided. Use a link shared by the organizer.")
-    st.stop()
+query = st.experimental_get_query_params()
+code = query.get("code", [None])[0]
+
+if not code:
+    code = st.text_input("Enter 3-digit match code:", max_chars=3).strip()
+    if not code:
+        st.stop()
 
 def init_firebase():
     if not firebase_admin._apps:
@@ -71,41 +69,44 @@ def init_firebase():
             "databaseURL": st.secrets["FIREBASE_DB_URL"]
         })
 
-refresh_sec = 5
-st.caption(f"Auto-refreshes every {refresh_sec} seconds")
-
-placeholder = st.empty()
-
 init_firebase()
 try:
-    ref = db.reference(f"/rooms/{room_id}")
+    ref = db.reference(f"/rooms/live/{code}")
     data = ref.get()
 except Exception as e:
     st.error(f"❌ Firebase fetch error: {e}")
     st.stop()
 
 if not data:
-    placeholder.info("⌛ Waiting for game data...")
     st.stop()
 
 round_no = data.get("round", "?")
 courts = data.get("courts", [])
 benched = data.get("benched", [])
 
-with placeholder.container():
-    group_name = data.get("group_name", "Unknown Group")
-    timestamp = data.get("timestamp", "Unknown Time")
-    st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**  \n🕒 {timestamp}")
-    st.subheader(f"🏓 Round {round_no}")
+st.markdown(
+    f"""
+    <div style='display: flex; align-items: center; gap: 12px; height: 100%; margin-top: 10px;'>
+        <h1 style='margin: 0;'>Live Match Viewer — Code {code}</h1>
+        <div class='live-badge'><div class='live-dot'></div>LIVE</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-    for i, court in enumerate(courts, 1):
-        if len(court) == 4:
-            st.write(f"🏟️ Court {i}: **{court[0]} + {court[1]}** vs **{court[2]} + {court[3]}**")
+group_name = data.get("group_name", "Unknown Group")
+timestamp = data.get("timestamp", "Unknown Time")
+st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**  \n🕒 {timestamp}")
+st.subheader(f"🏓 Round {round_no}")
 
-    if benched:
-        st.write(f"🪑 Benched: {', '.join(benched)}")
+for i, court in enumerate(courts, 1):
+    if len(court) == 4:
+        st.write(f"🏟️ Court {i}: **{court[0]} + {court[1]}** vs **{court[2]} + {court[3]}**")
 
-    st.caption(f"⏱️ Last updated: {data.get('updated', 'N/A')}")
+if benched:
+    st.write(f"🪑 Benched: {', '.join(benched)}")
+
+st.caption(f"⏱️ Last updated: {data.get('updated', 'N/A')}")
 
 # Branding footer
 st.markdown("---")
@@ -116,5 +117,4 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st_autorefresh = st.experimental_rerun  # optional fallback if autorefresh fails
-st_autorefresh_interval = st.autorefresh(interval=refresh_sec * 1000, key="auto_refresh_viewer")
+st_autorefresh_interval = st.autorefresh(interval=5 * 1000, key="auto_refresh_viewer")
