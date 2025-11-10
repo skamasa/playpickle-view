@@ -162,12 +162,26 @@ if not last_updated_text:
 st.caption(f"⏱️ Last updated: {last_updated_text}")
 
 st.markdown("---")
-if st.button("🎮 Join another match"):
-    st.experimental_set_query_params()
-    st.session_state.clear()
-    st.session_state.code_input = ""
-    st.success("Ready for a new match! Enter the new 3-digit code above.")
-    st.stop()
+# Quick switch: enter a new code and join from the bottom of the page
+c1, c2 = st.columns([2, 1])
+with c1:
+    new_code = st.text_input(
+        "Enter another 3-digit code",
+        key="code_input_bottom",
+        max_chars=3,
+        placeholder="e.g., 123",
+    ).strip()
+with c2:
+    if st.button("🎮 Join another match"):
+        target = (new_code or "").strip()
+        # Clear current session state and jump to the requested code (if provided)
+        st.session_state.clear()
+        if target:
+            st.experimental_set_query_params(code=target)
+        else:
+            st.experimental_set_query_params()
+        time.sleep(0.2)
+        st.rerun()
 
 # Branding footer
 st.markdown("---")
