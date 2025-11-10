@@ -163,7 +163,7 @@ st.caption(f"⏱️ Last updated: {last_updated_text}")
 
 st.markdown("---")
 if st.button("🎮 Join another match"):
-    st.experimental_set_query_params()ß
+    st.experimental_set_query_params()
     st.session_state.clear()
     st.session_state.code_input = ""
     st.success("Ready for a new match! Enter the new 3-digit code above.")
