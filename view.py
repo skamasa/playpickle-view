@@ -65,21 +65,21 @@ with col2:
         unsafe_allow_html=True,
     )
 
-# --- Consistent Match Code Entry ---
+# --- Unified Match Code Entry ---
 if "code" not in st.session_state:
     query = st.experimental_get_query_params()
     st.session_state.code = (query.get("code", [None])[0] or "").strip()
 
-if not st.session_state.code:
-    typed = st.text_input("Enter 3-digit match code:", key="code_input", max_chars=3).strip()
-    if typed and len(typed) == 3:
-        st.session_state.code = typed
-        st.experimental_set_query_params(code=typed)
-        st.rerun()
-    else:
-        st.stop()
+typed_code = st.text_input("Enter 3-digit match code:", key="code_input", max_chars=3).strip()
+if typed_code and len(typed_code) == 3 and typed_code != st.session_state.code:
+    st.session_state.code = typed_code
+    st.experimental_set_query_params(code=typed_code)
+    time.sleep(0.3)
+    st.rerun()
 
 code = st.session_state.code
+if not code:
+    st.stop()
 
 if "last_refresh_ts" not in st.session_state:
     st.session_state.last_refresh_ts = 0.0
@@ -101,26 +101,8 @@ try:
     ref = db.reference(ref_path)
     data = ref.get()
     if not data:
-        # Try numeric variant if string key missing
-        alt_ref_path = f"/rooms/live/{int(code)}" if code.isdigit() else None
-        if alt_ref_path:
-            alt_ref = db.reference(alt_ref_path)
-            data = alt_ref.get()
-            if data:
-                ref_path = alt_ref_path
-    if not data:
-        available_rooms = db.reference("/rooms/live").get()
-        keys = list(available_rooms.keys()) if isinstance(available_rooms, dict) else []
         st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
-
-        # Let user re-enter code without stopping the app
-        new_code = st.text_input("Enter a valid 3-digit match code to try again:", key="retry_code", max_chars=3).strip()
-        if new_code:
-            st.experimental_set_query_params(code=new_code)
-            st.session_state.code_input = new_code
-            st.rerun()
-        else:
-            st.stop()
+        st.stop()
 except Exception as e:
     st.error(f"❌ Firebase fetch error: {e}")
     st.stop()
@@ -188,9 +170,10 @@ st.caption(f"⏱️ Last updated: {last_updated_text}")
 st.markdown("---")
 
 if st.button("🎮 Switch to another live match"):
-    st.session_state.clear()
+    for key in ["code", "code_input", "last_refresh_ts"]:
+        st.session_state.pop(key, None)
     st.experimental_set_query_params()
-    time.sleep(0.2)
+    time.sleep(0.3)
     st.rerun()
 
 # Branding footer
