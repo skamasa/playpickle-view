@@ -174,19 +174,50 @@ if not last_updated_text:
 st.caption(f"⏱️ Last updated: {last_updated_text}")
 
 st.markdown("---")
-# Quick switch: enter a new code and join from the bottom of the page
-c1, c2 = st.columns([2, 1])
+st.markdown("### 🎮 Switch to another live match")
+
+st.markdown(
+    """
+    <style>
+    .match-switch-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .stTextInput input {
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        padding: 8px 12px;
+        font-size: 15px;
+    }
+    div.stButton>button {
+        border-radius: 10px;
+        background-color: #1c83e1;
+        color: white;
+        font-weight: 600;
+        padding: 8px 16px;
+    }
+    div.stButton>button:hover {
+        background-color: #0059b3;
+        color: white;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+c1, c2 = st.columns([2.5, 1])
 with c1:
     new_code = st.text_input(
-        "Enter another 3-digit code",
+        "",
         key="code_input_bottom",
         max_chars=3,
-        placeholder="e.g., 123",
+        placeholder="Enter new 3-digit code (e.g., 123)",
     ).strip()
 with c2:
-    if st.button("🎮 Join another match"):
+    if st.button("Join Match 🔁"):
         target = (new_code or "").strip()
-        # Clear current session state and jump to the requested code (if provided)
         st.session_state.clear()
         if target:
             st.experimental_set_query_params(code=target)
