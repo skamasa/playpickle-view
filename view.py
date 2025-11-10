@@ -82,8 +82,8 @@ if not st.session_state.code:
 
     if st.session_state.get("ready"):
         st.session_state.ready = False
-        # Instead of immediate rerun, exit early so rerun happens safely
         st.experimental_set_query_params(code=st.session_state.code)
+        st.session_state.force_rerun = True
         st.stop()
 
 else:
@@ -115,10 +115,16 @@ else:
             st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
             st.session_state.code = None
             st.experimental_set_query_params()
-            # Removed st.stop() here to allow re-entry of code
+            st.session_state.show_input = True
     except Exception as e:
         st.error(f"❌ Firebase fetch error: {e}")
         st.stop()
+
+    if st.session_state.get("show_input"):
+        st.session_state.show_input = False
+        st.session_state.code = None
+        st.experimental_set_query_params()
+        st.rerun()
 
     if st.session_state.code:
         round_no = data.get("round", "?")
@@ -195,6 +201,10 @@ else:
 if st.session_state.get("reset_app"):
     st.session_state.reset_app = False
     st.experimental_rerun()
+
+if st.session_state.get("force_rerun"):
+    st.session_state.force_rerun = False
+    st.rerun()
 
 st.markdown("---")
 st.markdown(
