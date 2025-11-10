@@ -1,6 +1,8 @@
 import streamlit as st
 import requests, json, time
 from PIL import Image
+import firebase_admin
+from firebase_admin import credentials, db
 
 st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
 col1, col2 = st.columns([1, 8])
@@ -59,24 +61,27 @@ if not room_id:
     st.warning("❗ No room ID provided. Use a link shared by the organizer.")
     st.stop()
 
-# Remote GitHub data source
-DATA_URL = f"https://raw.githubusercontent.com/skamasa/playpickle-data/main/rooms/{room_id}.json"
+def init_firebase():
+    if not firebase_admin._apps:
+        key_data = json.loads(st.secrets["FIREBASE_KEY"])
+        cred = credentials.Certificate(key_data)
+        firebase_admin.initialize_app(cred, {
+            "databaseURL": st.secrets["FIREBASE_DB_URL"]
+        })
 
-refresh_sec = 10
+refresh_sec = 5
 st.caption(f"Auto-refreshes every {refresh_sec} seconds")
 
 placeholder = st.empty()
 
-def fetch_data():
-    try:
-        res = requests.get(DATA_URL, timeout=10)
-        if res.status_code == 200:
-            return res.json()
-        return None
-    except Exception:
-        return None
+init_firebase()
+try:
+    ref = db.reference(f"/rooms/{room_id}")
+    data = ref.get()
+except Exception as e:
+    st.error(f"❌ Firebase fetch error: {e}")
+    st.stop()
 
-data = fetch_data()
 if not data:
     placeholder.info("⌛ Waiting for game data...")
     st.stop()
@@ -87,7 +92,7 @@ benched = data.get("benched", [])
 
 with placeholder.container():
     group_name = data.get("group_name", "Unknown Group")
-    timestamp = data.get("updated", "Unknown Time")
+    timestamp = data.get("timestamp", "Unknown Time")
     st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**  \n🕒 {timestamp}")
     st.subheader(f"🏓 Round {round_no}")
 
@@ -109,6 +114,5 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ---- Auto-refresh (fallback) ----
-time.sleep(refresh_sec)
-st.rerun()
+st_autorefresh = st.experimental_rerun  # optional fallback if autorefresh fails
+st_autorefresh_interval = st.autorefresh(interval=refresh_sec * 1000, key="auto_refresh_viewer")
