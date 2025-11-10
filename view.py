@@ -3,6 +3,9 @@ import requests, json, time
 from PIL import Image
 import firebase_admin
 from firebase_admin import credentials, db
+from streamlit_autorefresh import st_autorefresh
+
+REFRESH_SEC = 5
 
 st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
 col1, col2 = st.columns([1, 8])
@@ -58,6 +61,9 @@ if not code:
     code = st.text_input("Enter 3-digit match code:", max_chars=3).strip()
     if not code:
         st.stop()
+
+if "last_refresh_ts" not in st.session_state:
+    st.session_state.last_refresh_ts = 0.0
 
 def init_firebase():
     if not firebase_admin._apps:
@@ -117,14 +123,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Auto-refresh every 5 seconds using JavaScript reload (works reliably on Streamlit Cloud)
-st.markdown(
-    """
-    <script>
-    setTimeout(function(){
-        window.location.reload(1);
-    }, 5000);
-    </script>
-    """,
-    unsafe_allow_html=True
-)
+# --- Auto-refresh every REFRESH_SEC seconds (cloud-safe) ---
+from streamlit_autorefresh import st_autorefresh
+
+# Trigger rerun every REFRESH_SEC seconds
+st_autorefresh(interval=REFRESH_SEC * 1000, key="auto_refresh_viewer")

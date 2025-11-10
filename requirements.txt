@@ -3,3 +3,4 @@ pandas
 firebase-admin
 Pillow
 requests
+streamlit-autorefresh
