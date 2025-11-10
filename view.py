@@ -119,7 +119,7 @@ group_name = data.get("group_name", "Unknown Group")
 timestamp = data.get("timestamp", "Unknown Time")
 st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**")
 st.subheader(f"🏓 Round {round_no}")
-st.markdown("🏓 Want to see who’s serving next? Tap **Refresh Now** to view the current round!")
+st.markdown("Want to see who’s serving next? Tap **Refresh Now** to view the current round!")
 if st.button("🔄 Refresh Now"):
     st.rerun()
 
@@ -163,9 +163,11 @@ st.caption(f"⏱️ Last updated: {last_updated_text}")
 
 st.markdown("---")
 if st.button("🎮 Join another match"):
-    st.experimental_set_query_params(code="")
+    st.experimental_set_query_params()ß
     st.session_state.clear()
-    st.rerun()
+    st.session_state.code_input = ""
+    st.success("Ready for a new match! Enter the new 3-digit code above.")
+    st.stop()
 
 # Branding footer
 st.markdown("---")
