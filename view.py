@@ -67,11 +67,10 @@ if not code:
         st.stop()
 
 # Reliable auto-refresh using Streamlit built-in mechanism
-st_autorefresh = st.experimental_rerun
 try:
-    st_autorefresh = st.autorefresh(interval=REFRESH_SEC * 1000, key="auto_refresh_viewer")
+    st.autorefresh(interval=REFRESH_SEC * 1000, key="auto_refresh_viewer")
 except Exception:
-    pass
+    st.write("")  # fallback no-op if autorefresh fails
 
 if "last_refresh_ts" not in st.session_state:
     st.session_state.last_refresh_ts = 0.0
