@@ -78,7 +78,9 @@ typed_code = st.text_input("Enter 3-digit match code:", key="code_input", max_ch
 if typed_code and len(typed_code) == 3 and typed_code != st.session_state.code:
     st.session_state.code = typed_code
     st.experimental_set_query_params(code=typed_code)
-    time.sleep(0.3)
+    st.session_state.trigger_rerun = True
+if st.session_state.get("trigger_rerun"):
+    st.session_state.trigger_rerun = False
     st.experimental_rerun()
 
 code = st.session_state.code
@@ -180,6 +182,10 @@ if st.button("🎮 Switch to another live match"):
         st.session_state.pop(key, None)
     st.experimental_set_query_params()
     time.sleep(0.3)
+    st.experimental_rerun()
+
+# Add Quick Refresh button at the bottom
+if st.button("🔁 Quick Refresh (Bottom)"):
     st.experimental_rerun()
 
 # Branding footer
