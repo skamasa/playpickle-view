@@ -1,9 +1,16 @@
 import streamlit as st
 import requests, json, time
+
+refresh_interval = 5  # seconds
+if "last_refresh" not in st.session_state:
+    st.session_state.last_refresh = time.time()
+elif time.time() - st.session_state.last_refresh > refresh_interval:
+    st.session_state.last_refresh = time.time()
+    st.experimental_rerun()
+
 from PIL import Image
 import firebase_admin
 from firebase_admin import credentials, db
-from streamlit_autorefresh import st_autorefresh
 
 REFRESH_SEC = 5
 
@@ -122,9 +129,3 @@ st.markdown(
     "</div>",
     unsafe_allow_html=True,
 )
-
-# --- Auto-refresh every REFRESH_SEC seconds (cloud-safe) ---
-from streamlit_autorefresh import st_autorefresh
-
-# Trigger rerun every REFRESH_SEC seconds
-st_autorefresh(interval=REFRESH_SEC * 1000, key="auto_refresh_viewer")
