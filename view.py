@@ -92,9 +92,16 @@ if not st.session_state.code:
                 st.experimental_set_query_params(code=typed_code)
                 st.session_state.ready = True
         else:
+            # Show the button regardless, and warning below it
+            if st.button("🎟️ Enter Match"):
+                # No data, so do not enter code
+                pass
             st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
-    elif typed_code:
-        st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
+    else:
+        # Show the button regardless
+        if typed_code:
+            st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
+        st.button("🎟️ Enter Match")
 
     if st.session_state.get("ready"):
         st.session_state.ready = False
