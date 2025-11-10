@@ -113,8 +113,10 @@ st.markdown(
 
 group_name = data.get("group_name", "Unknown Group")
 timestamp = data.get("timestamp", "Unknown Time")
-st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**  \n🕒 {timestamp}")
+st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**")
 st.subheader(f"🏓 Round {round_no}")
+if st.button("🔄 Refresh Now"):
+    st.experimental_rerun()
 
 for i, court in enumerate(courts, 1):
     if len(court) == 4:
