@@ -72,11 +72,13 @@ if not st.session_state.code:
             st.session_state.ready = True
         else:
             st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
+            # Do not stop execution, allow user to re-enter code
     elif typed_code and len(typed_code) == 3:
         # If user typed a code but didn't press enter yet, no warning here
         pass
     elif typed_code:
         st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
+        # Do not stop execution, allow user to re-enter code
 
     if st.session_state.get("ready"):
         st.session_state.ready = False
@@ -113,89 +115,91 @@ else:
             st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
             st.session_state.code = None
             st.experimental_set_query_params()
-            st.stop()
+            # Removed st.stop() here to allow re-entry of code
     except Exception as e:
         st.error(f"❌ Firebase fetch error: {e}")
         st.stop()
 
-    round_no = data.get("round", "?")
-    courts = data.get("courts", [])
-    benched = data.get("benched", [])
+    if st.session_state.code:
+        round_no = data.get("round", "?")
+        courts = data.get("courts", [])
+        benched = data.get("benched", [])
 
-    st.markdown(
-        f"""
-        <div style='display: flex; align-items: center; gap: 12px; height: 100%; margin-top: 10px;'>
-            <h1 style='margin: 0;'>Live Match Viewer — Code {code}</h1>
-            <div class='live-badge'><div class='live-dot'></div>LIVE</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        st.markdown(
+            f"""
+            <div style='display: flex; align-items: center; gap: 12px; height: 100%; margin-top: 10px;'>
+                <h1 style='margin: 0;'>Live Match Viewer — Code {code}</h1>
+                <div class='live-badge'><div class='live-dot'></div>LIVE</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-    group_name = data.get("group_name", "Unknown Group")
-    timestamp = data.get("timestamp", "Unknown Time")
-    st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**")
-    st.subheader(f"🏓 Round {round_no}")
-    st.markdown("Want to see who’s serving next? Tap **Refresh Now** to view the current round!")
-    if st.button("🔄 Refresh Now"):
-        st.experimental_rerun()
+        group_name = data.get("group_name", "Unknown Group")
+        timestamp = data.get("timestamp", "Unknown Time")
+        st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**")
+        st.subheader(f"🏓 Round {round_no}")
+        st.markdown("Want to see who’s serving next? Tap **Refresh Now** to view the current round!")
+        if st.button("🔄 Refresh Now"):
+            st.experimental_rerun()
 
-    for i, court in enumerate(courts, 1):
-        players = []
-        if isinstance(court, dict) and "players" in court:
-            players = court["players"]
-        elif isinstance(court, list) and len(court) == 4:
-            players = court
-        elif isinstance(court, list) and len(court) == 2 and all(isinstance(p, list) for p in court):
-            players = court[0] + court[1]
-        else:
-            st.write(f"🏟️ Court {i}: Data unavailable or invalid format")
-            continue
+        for i, court in enumerate(courts, 1):
+            players = []
+            if isinstance(court, dict) and "players" in court:
+                players = court["players"]
+            elif isinstance(court, list) and len(court) == 4:
+                players = court
+            elif isinstance(court, list) and len(court) == 2 and all(isinstance(p, list) for p in court):
+                players = court[0] + court[1]
+            else:
+                st.write(f"🏟️ Court {i}: Data unavailable or invalid format")
+                continue
 
-        if len(players) == 4:
-            st.write(f"🏟️ Court {i}: **{players[0]} + {players[1]}** vs **{players[2]} + {players[3]}**")
-        else:
-            st.write(f"🏟️ Court {i}: Unexpected data format")
+            if len(players) == 4:
+                st.write(f"🏟️ Court {i}: **{players[0]} + {players[1]}** vs **{players[2]} + {players[3]}**")
+            else:
+                st.write(f"🏟️ Court {i}: Unexpected data format")
 
-    if benched:
-        st.write(f"🪑 Benched: {', '.join(benched)}")
+        if benched:
+            st.write(f"🪑 Benched: {', '.join(benched)}")
 
-    # Compute a friendly last-updated string from available fields
-    last_updated_text = None
-    # Prefer epoch fields if present
-    ts_epoch = data.get("last_updated") or data.get("timestamp_epoch")
-    if isinstance(ts_epoch, (int, float)):
-        try:
-            est = pytz.timezone("America/New_York")
-            local_dt = datetime.fromtimestamp(ts_epoch, est)
-            last_updated_text = local_dt.strftime("%Y-%m-%d %I:%M:%S %p %Z")
-        except Exception:
-            local_time = time.strftime("%Y-%m-%d %I:%M:%S %p %Z", time.localtime(ts_epoch))
-            last_updated_text = f"{local_time}"
-    # Fallback to ISO/string timestamp if provided
-    if not last_updated_text:
-        last_updated_text = data.get("timestamp") or data.get("updated") or "Just now"
-    st.caption(f"⏱️ Last updated: {last_updated_text}")
+        # Compute a friendly last-updated string from available fields
+        last_updated_text = None
+        # Prefer epoch fields if present
+        ts_epoch = data.get("last_updated") or data.get("timestamp_epoch")
+        if isinstance(ts_epoch, (int, float)):
+            try:
+                est = pytz.timezone("America/New_York")
+                local_dt = datetime.fromtimestamp(ts_epoch, est)
+                last_updated_text = local_dt.strftime("%Y-%m-%d %I:%M:%S %p %Z")
+            except Exception:
+                local_time = time.strftime("%Y-%m-%d %I:%M:%S %p %Z", time.localtime(ts_epoch))
+                last_updated_text = f"{local_time}"
+        # Fallback to ISO/string timestamp if provided
+        if not last_updated_text:
+            last_updated_text = data.get("timestamp") or data.get("updated") or "Just now"
+        st.caption(f"⏱️ Last updated: {last_updated_text}")
 
-    st.markdown("---")
+        st.markdown("---")
 
-    if st.button("🎮 Switch to another live match"):
-        # Clear relevant session data safely
-        for key in ["code", "ready", "last_refresh_ts"]:
-            st.session_state.pop(key, None)
-        st.experimental_set_query_params()
-        # Flag safe reset and stop current execution to avoid AttributeError
-        st.session_state.reset_app = True
-        st.stop()
+        if st.button("🎮 Switch to another live match"):
+            # Clear relevant session data safely
+            for key in ["code", "ready", "last_refresh_ts"]:
+                st.session_state.pop(key, None)
+            st.experimental_set_query_params()
+            # Flag safe reset and stop current execution to avoid AttributeError
+            st.session_state.reset_app = True
+            st.stop()
 
 # Safe rerun handler
 if st.session_state.get("reset_app"):
     st.session_state.reset_app = False
     st.experimental_rerun()
-    st.markdown("---")
-    st.markdown(
-        "<div style='text-align: center; font-size: 14px; color: gray;'>"
-        "🏓 Powered by <strong>PlayPickle</strong> • Created by <strong>Sai Kamasani 🧠</strong>"
-        "</div>",
-        unsafe_allow_html=True,
-    )
+
+st.markdown("---")
+st.markdown(
+    "<div style='text-align: center; font-size: 14px; color: gray;'>"
+    "🏓 Powered by <strong>PlayPickle</strong> • Created by <strong>Sai Kamasani 🧠</strong>"
+    "</div>",
+    unsafe_allow_html=True,
+)
