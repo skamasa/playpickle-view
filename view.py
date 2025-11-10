@@ -11,17 +11,6 @@ REFRESH_SEC = 5
 # Simple safe refresh fallback for Streamlit Cloud
 if "last_refresh" not in st.session_state:
     st.session_state.last_refresh = time.time()
-else:
-    elapsed = time.time() - st.session_state.last_refresh
-    if elapsed > REFRESH_SEC:
-        st.session_state.last_refresh = time.time()
-        # Delay rerun slightly to avoid early rerun errors
-        st.experimental_rerun()
-
-st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
-
-if st.button("🔄 Quick Refresh", key="quick_refresh", help="Reload live data without resetting session"):
-    st.experimental_rerun()
 
 col1, col2 = st.columns([1, 8])
 try:
@@ -184,11 +173,10 @@ if st.button("🎮 Switch to another live match"):
     time.sleep(0.3)
     st.experimental_rerun()
 
-# Add Quick Refresh button at the bottom
-if st.button("🔁 Quick Refresh (Bottom)"):
+# Add Quick Refresh button at the bottom, just before branding footer
+if st.button("🔄 Quick Refresh", key="quick_refresh", help="Reload live data without resetting session"):
     st.experimental_rerun()
 
-# Branding footer
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; font-size: 14px; color: gray;'>"
