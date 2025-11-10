@@ -20,10 +20,12 @@ else:
 
 st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
 
-# Detect forced reload request
+# Detect forced reload request (safe for Streamlit Cloud)
 query = st.experimental_get_query_params()
 if "force_reload" in query:
-    st.experimental_rerun()
+    st.experimental_set_query_params()  # Clear the flag
+    st.session_state.last_refresh = time.time()
+    st.stop()  # Stop execution; Streamlit will reload naturally
 
 col1, col2 = st.columns([1, 8])
 try:
@@ -148,12 +150,6 @@ for i, court in enumerate(courts, 1):
 if benched:
     st.write(f"🪑 Benched: {', '.join(benched)}")
 
-st.markdown("---")
-if st.button("🎮 Join another match"):
-    st.experimental_set_query_params(code="")
-    st.session_state.clear()
-    st.rerun()
-
 # Compute a friendly last-updated string from available fields
 last_updated_text = None
 # Prefer epoch fields if present
@@ -171,6 +167,12 @@ if isinstance(ts_epoch, (int, float)):
 if not last_updated_text:
     last_updated_text = data.get("timestamp") or data.get("updated") or "Just now"
 st.caption(f"⏱️ Last updated: {last_updated_text}")
+
+st.markdown("---")
+if st.button("🎮 Join another match"):
+    st.experimental_set_query_params(code="")
+    st.session_state.clear()
+    st.rerun()
 
 # Branding footer
 st.markdown("---")
