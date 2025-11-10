@@ -63,22 +63,20 @@ if "code" not in st.session_state:
     query = st.experimental_get_query_params()
     st.session_state.code = (query.get("code", [None])[0] or "").strip()
 
-# Show match code input and Quick Refresh only if user has NOT entered a code (landing page)
+# Show match code input and Enter Match button only if user has NOT entered a code (landing page)
 if not st.session_state.code:
     typed_code = st.text_input("Enter 3-digit match code:", key="code_input", max_chars=3).strip()
-    # Quick Refresh button only on landing page
-    if st.button("🔄 Quick Refresh", key="quick_refresh", help="Reload live data without resetting session"):
-        st.rerun()
-    if typed_code and len(typed_code) == 3 and typed_code != st.session_state.code:
-        st.session_state.code = typed_code
-        st.experimental_set_query_params(code=typed_code)
-        st.session_state.trigger_rerun = True
-    if st.session_state.get("trigger_rerun"):
-        st.session_state.trigger_rerun = False
-        st.rerun()
+    if st.button("🎟️ Enter Match", key="enter_match", help="Join or load the live match view"):
+        if typed_code and len(typed_code) == 3 and typed_code != st.session_state.code:
+            st.session_state.code = typed_code
+            st.experimental_set_query_params(code=typed_code)
+            st.session_state.trigger_rerun = True
+        if st.session_state.get("trigger_rerun"):
+            st.session_state.trigger_rerun = False
+            st.rerun()
     code = st.session_state.code
-    if not code:
-        st.stop()
+    if typed_code and len(typed_code) == 3 and typed_code != code:
+        st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
 else:
     code = st.session_state.code
 
