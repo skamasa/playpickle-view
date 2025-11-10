@@ -65,16 +65,21 @@ with col2:
         unsafe_allow_html=True,
     )
 
-query = st.experimental_get_query_params()
-code = (query.get("code", [None])[0] or "").strip()
+# --- Consistent Match Code Entry ---
+if "code" not in st.session_state:
+    query = st.experimental_get_query_params()
+    st.session_state.code = (query.get("code", [None])[0] or "").strip()
 
-if not code:
+if not st.session_state.code:
     typed = st.text_input("Enter 3-digit match code:", key="code_input", max_chars=3).strip()
-    if typed:
+    if typed and len(typed) == 3:
+        st.session_state.code = typed
         st.experimental_set_query_params(code=typed)
-        code = typed
+        st.rerun()
     else:
         st.stop()
+
+code = st.session_state.code
 
 if "last_refresh_ts" not in st.session_state:
     st.session_state.last_refresh_ts = 0.0
@@ -106,8 +111,7 @@ try:
     if not data:
         available_rooms = db.reference("/rooms/live").get()
         keys = list(available_rooms.keys()) if isinstance(available_rooms, dict) else []
-        st.warning(f"🤪 When in doubt, it’s in — but this code? Definitely out! "
-                   f"(Checked: {ref_path}). Available codes: {', '.join(map(str, keys)) or 'none'}")
+        st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
 
         # Let user re-enter code without stopping the app
         new_code = st.text_input("Enter a valid 3-digit match code to try again:", key="retry_code", max_chars=3).strip()
