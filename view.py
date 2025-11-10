@@ -73,12 +73,13 @@ if not st.session_state.code:
         else:
             st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
             # Do not stop execution, allow user to re-enter code
-    elif typed_code and len(typed_code) == 3:
-        # If user typed a code but didn't press enter yet, no warning here
-        pass
     elif typed_code:
-        st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
-        # Do not stop execution, allow user to re-enter code
+        if len(typed_code) == 3:
+            # If user typed a code but didn't press enter yet, no warning here
+            pass
+        else:
+            st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
+            # Do not stop execution, allow user to re-enter code
 
     if st.session_state.get("ready"):
         st.session_state.ready = False
