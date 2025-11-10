@@ -7,7 +7,12 @@ import firebase_admin
 from firebase_admin import credentials, db
 
 REFRESH_SEC = 5
-st_autorefresh_interval = st.autorefresh(interval=REFRESH_SEC * 1000, key="refresh_auto")
+# Simple safe refresh fallback for Streamlit Cloud
+if "last_refresh" not in st.session_state:
+    st.session_state.last_refresh = time.time()
+elif time.time() - st.session_state.last_refresh > REFRESH_SEC:
+    st.session_state.last_refresh = time.time()
+    st.experimental_rerun()
 
 st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
 col1, col2 = st.columns([1, 8])
