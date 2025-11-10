@@ -84,7 +84,7 @@ if not st.session_state.code:
         st.session_state.ready = False
         st.experimental_set_query_params(code=st.session_state.code)
         st.session_state.force_rerun = True
-        st.stop()
+        st.rerun()
 
 else:
     code = st.session_state.code
@@ -147,7 +147,7 @@ else:
         st.subheader(f"🏓 Round {round_no}")
         st.markdown("Want to see who’s serving next? Tap **Refresh Now** to view the current round!")
         if st.button("🔄 Refresh Now"):
-            st.experimental_rerun()
+            st.rerun()
 
         for i, court in enumerate(courts, 1):
             players = []
@@ -200,7 +200,7 @@ else:
 # Safe rerun handler
 if st.session_state.get("reset_app"):
     st.session_state.reset_app = False
-    st.experimental_rerun()
+    st.rerun()
 
 if st.session_state.get("force_rerun"):
     st.session_state.force_rerun = False
