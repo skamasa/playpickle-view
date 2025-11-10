@@ -117,4 +117,14 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st_autorefresh_interval = st.autorefresh(interval=5 * 1000, key="auto_refresh_viewer")
+# Auto-refresh every 5 seconds using JavaScript reload (works reliably on Streamlit Cloud)
+st.markdown(
+    """
+    <script>
+    setTimeout(function(){
+        window.location.reload(1);
+    }, 5000);
+    </script>
+    """,
+    unsafe_allow_html=True
+)
