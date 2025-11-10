@@ -62,7 +62,17 @@ if not code:
     if not code:
         st.stop()
 
-st_autorefresh = st.autorefresh(interval=REFRESH_SEC * 1000, key="live_refresh")
+# Reliable auto-refresh using JavaScript (works on Streamlit Cloud)
+st.markdown(
+    f"""
+    <script>
+    setTimeout(function() {{
+        window.location.reload();
+    }}, {REFRESH_SEC * 1000});
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
 if "last_refresh_ts" not in st.session_state:
     st.session_state.last_refresh_ts = 0.0
