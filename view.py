@@ -178,11 +178,17 @@ else:
     st.markdown("---")
 
     if st.button("🎮 Switch to another live match"):
-        for key in ["code", "code_input", "last_refresh_ts"]:
+        # Clear only relevant state and return user to landing page safely
+        for key in ["code", "ready", "last_refresh_ts"]:
             st.session_state.pop(key, None)
         st.experimental_set_query_params()
-        time.sleep(0.3)
-        st.experimental_rerun()
+        # Use flag to rerun safely (avoids AttributeError on rerun)
+        st.session_state.reset_app = True
+
+# Safe rerun handler
+if st.session_state.get("reset_app"):
+    st.session_state.reset_app = False
+    st.experimental_rerun()
 
     st.markdown("---")
     st.markdown(
