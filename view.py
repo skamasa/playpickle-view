@@ -55,11 +55,14 @@ with col2:
     )
 
 query = st.experimental_get_query_params()
-code = query.get("code", [None])[0]
+code = (query.get("code", [None])[0] or "").strip()
 
 if not code:
-    code = st.text_input("Enter 3-digit match code:", max_chars=3).strip()
-    if not code:
+    typed = st.text_input("Enter 3-digit match code:", key="code_input", max_chars=3).strip()
+    if typed:
+        st.experimental_set_query_params(code=typed)
+        code = typed
+    else:
         st.stop()
 
 # Reliable auto-refresh using JavaScript (works on Streamlit Cloud)
@@ -125,7 +128,21 @@ for i, court in enumerate(courts, 1):
 if benched:
     st.write(f"🪑 Benched: {', '.join(benched)}")
 
-st.caption(f"⏱️ Last updated: {data.get('updated', 'N/A')}")
+# Compute a friendly last-updated string from available fields
+last_updated_text = None
+# Prefer epoch fields if present
+ts_epoch = data.get("last_updated") or data.get("timestamp_epoch")
+if isinstance(ts_epoch, (int, float)):
+    try:
+        # Format to local time with timezone abbreviation
+        local_time = time.strftime("%Y-%m-%d %I:%M:%S %p %Z", time.localtime(ts_epoch))
+        last_updated_text = f"{local_time}"
+    except Exception:
+        last_updated_text = str(ts_epoch)
+# Fallback to ISO/string timestamp if provided
+if not last_updated_text:
+    last_updated_text = data.get("timestamp") or data.get("updated") or "Just now"
+st.caption(f"⏱️ Last updated: {last_updated_text}")
 
 # Branding footer
 st.markdown("---")
