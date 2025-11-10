@@ -116,11 +116,24 @@ timestamp = data.get("timestamp", "Unknown Time")
 st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}**")
 st.subheader(f"🏓 Round {round_no}")
 if st.button("🔄 Refresh Now"):
-    st.experimental_rerun()
+    st.rerun()
 
 for i, court in enumerate(courts, 1):
-    if len(court) == 4:
-        st.write(f"🏟️ Court {i}: **{court[0]} + {court[1]}** vs **{court[2]} + {court[3]}**")
+    players = []
+    if isinstance(court, dict) and "players" in court:
+        players = court["players"]
+    elif isinstance(court, list) and len(court) == 4:
+        players = court
+    elif isinstance(court, list) and len(court) == 2 and all(isinstance(p, list) for p in court):
+        players = court[0] + court[1]
+    else:
+        st.write(f"🏟️ Court {i}: Data unavailable or invalid format")
+        continue
+
+    if len(players) == 4:
+        st.write(f"🏟️ Court {i}: **{players[0]} + {players[1]}** vs **{players[2]} + {players[3]}**")
+    else:
+        st.write(f"🏟️ Court {i}: Unexpected data format")
 
 if benched:
     st.write(f"🪑 Benched: {', '.join(benched)}")
