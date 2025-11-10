@@ -108,7 +108,15 @@ try:
         keys = list(available_rooms.keys()) if isinstance(available_rooms, dict) else []
         st.warning(f"🤪 When in doubt, it’s in — but this code? Definitely out! "
                    f"(Checked: {ref_path}). Available codes: {', '.join(map(str, keys)) or 'none'}")
-        st.stop()
+
+        # Let user re-enter code without stopping the app
+        new_code = st.text_input("Enter a valid 3-digit match code to try again:", key="retry_code", max_chars=3).strip()
+        if new_code:
+            st.experimental_set_query_params(code=new_code)
+            st.session_state.code_input = new_code
+            st.rerun()
+        else:
+            st.stop()
 except Exception as e:
     st.error(f"❌ Firebase fetch error: {e}")
     st.stop()
