@@ -61,25 +61,40 @@ with col2:
 if "code" not in st.session_state:
     st.session_state.code = None
 
+@st.cache_resource
+def init_firebase():
+    if not firebase_admin._apps:
+        import base64
+        key_json = base64.b64decode(st.secrets["FIREBASE_KEY_B64"]).decode("utf-8")
+        key_data = json.loads(key_json)
+        cred = credentials.Certificate(key_data)
+        firebase_admin.initialize_app(cred, {
+            "databaseURL": st.secrets["FIREBASE_DB_URL"]
+        })
+
+@st.cache_data(ttl=5)
+def get_room_data(code):
+    ref = db.reference(f"/rooms/live/{str(code)}")
+    return ref.get()
+
+init_firebase()
+
 if not st.session_state.code:
     # Landing page: show code input and enter button
     st.markdown("<h1 style='margin: 0;'>Live Match Viewer</h1>", unsafe_allow_html=True)
     typed_code = st.text_input("Enter 3-digit match code:", max_chars=3).strip()
-    if st.button("🎟️ Enter Match"):
-        if typed_code and len(typed_code) == 3:
-            st.session_state.code = typed_code
-            st.experimental_set_query_params(code=typed_code)
-            st.session_state.ready = True
+
+    if typed_code and len(typed_code) == 3:
+        data = get_room_data(typed_code)
+        if data:
+            if st.button("🎟️ Enter Match"):
+                st.session_state.code = typed_code
+                st.experimental_set_query_params(code=typed_code)
+                st.session_state.ready = True
         else:
             st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
-            # Do not stop execution, allow user to re-enter code
     elif typed_code:
-        if len(typed_code) == 3:
-            # If user typed a code but didn't press enter yet, no warning here
-            pass
-        else:
-            st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
-            # Do not stop execution, allow user to re-enter code
+        st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
 
     if st.session_state.get("ready"):
         st.session_state.ready = False
@@ -93,23 +108,6 @@ else:
     if "last_refresh_ts" not in st.session_state:
         st.session_state.last_refresh_ts = 0.0
 
-    @st.cache_resource
-    def init_firebase():
-        if not firebase_admin._apps:
-            import base64
-            key_json = base64.b64decode(st.secrets["FIREBASE_KEY_B64"]).decode("utf-8")
-            key_data = json.loads(key_json)
-            cred = credentials.Certificate(key_data)
-            firebase_admin.initialize_app(cred, {
-                "databaseURL": st.secrets["FIREBASE_DB_URL"]
-            })
-
-    @st.cache_data(ttl=5)
-    def get_room_data(code):
-        ref = db.reference(f"/rooms/live/{str(code)}")
-        return ref.get()
-
-    init_firebase()
     try:
         data = get_room_data(code)
         if not data:
