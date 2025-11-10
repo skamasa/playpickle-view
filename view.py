@@ -69,7 +69,7 @@ if not st.session_state.code:
         if typed_code and len(typed_code) == 3:
             st.session_state.code = typed_code
             st.experimental_set_query_params(code=typed_code)
-            st.experimental_rerun()
+            st.session_state.ready = True
         else:
             st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
     elif typed_code and len(typed_code) == 3:
@@ -77,6 +77,11 @@ if not st.session_state.code:
         pass
     elif typed_code:
         st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
+
+    if st.session_state.get("ready"):
+        st.session_state.ready = False
+        st.experimental_rerun()
+
 else:
     code = st.session_state.code
 
@@ -104,6 +109,8 @@ else:
         data = get_room_data(code)
         if not data:
             st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
+            st.session_state.code = None
+            st.experimental_set_query_params()
             st.stop()
     except Exception as e:
         st.error(f"❌ Firebase fetch error: {e}")
