@@ -1,5 +1,6 @@
 import streamlit as st
 import requests, json, time
+import pytz
 
 from PIL import Image
 import firebase_admin
@@ -65,17 +66,12 @@ if not code:
     else:
         st.stop()
 
-# Reliable auto-refresh using JavaScript (works on Streamlit Cloud)
-st.markdown(
-    f"""
-    <script>
-    setTimeout(function() {{
-        window.location.reload();
-    }}, {REFRESH_SEC * 1000});
-    </script>
-    """,
-    unsafe_allow_html=True
-)
+# Reliable auto-refresh using Streamlit built-in mechanism
+st_autorefresh = st.experimental_rerun
+try:
+    st_autorefresh = st.autorefresh(interval=REFRESH_SEC * 1000, key="auto_refresh_viewer")
+except Exception:
+    pass
 
 if "last_refresh_ts" not in st.session_state:
     st.session_state.last_refresh_ts = 0.0
@@ -134,11 +130,13 @@ last_updated_text = None
 ts_epoch = data.get("last_updated") or data.get("timestamp_epoch")
 if isinstance(ts_epoch, (int, float)):
     try:
-        # Format to local time with timezone abbreviation
+        from datetime import datetime
+        est = pytz.timezone("America/New_York")
+        local_dt = datetime.fromtimestamp(ts_epoch, est)
+        last_updated_text = local_dt.strftime("%Y-%m-%d %I:%M:%S %p %Z")
+    except Exception:
         local_time = time.strftime("%Y-%m-%d %I:%M:%S %p %Z", time.localtime(ts_epoch))
         last_updated_text = f"{local_time}"
-    except Exception:
-        last_updated_text = str(ts_epoch)
 # Fallback to ISO/string timestamp if provided
 if not last_updated_text:
     last_updated_text = data.get("timestamp") or data.get("updated") or "Just now"
