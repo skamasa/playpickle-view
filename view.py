@@ -94,6 +94,7 @@ except Exception as e:
     st.stop()
 
 if not data:
+    st.warning("🤪 When in doubt, it’s in. But this code? Definitely out!")
     st.stop()
 
 round_no = data.get("round", "?")
