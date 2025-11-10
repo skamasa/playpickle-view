@@ -174,7 +174,6 @@ if not last_updated_text:
 st.caption(f"⏱️ Last updated: {last_updated_text}")
 
 st.markdown("---")
-st.markdown("### 🎮 Switch to another live match")
 
 if st.button("🎮 Switch to another live match"):
     st.session_state.clear()
