@@ -10,11 +10,21 @@ REFRESH_SEC = 5
 # Simple safe refresh fallback for Streamlit Cloud
 if "last_refresh" not in st.session_state:
     st.session_state.last_refresh = time.time()
-elif time.time() - st.session_state.last_refresh > REFRESH_SEC:
-    st.session_state.last_refresh = time.time()
-    st.experimental_rerun()
+else:
+    elapsed = time.time() - st.session_state.last_refresh
+    if elapsed > REFRESH_SEC:
+        st.session_state.last_refresh = time.time()
+        # Delay rerun slightly to avoid early rerun errors
+        st.experimental_set_query_params(force_reload="1")
+        st.stop()
 
 st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
+
+# Detect forced reload request
+query = st.experimental_get_query_params()
+if "force_reload" in query:
+    st.experimental_rerun()
+
 col1, col2 = st.columns([1, 8])
 try:
     logo = Image.open("assets/pickleballrandom.png")
