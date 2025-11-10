@@ -80,7 +80,9 @@ if not st.session_state.code:
 
     if st.session_state.get("ready"):
         st.session_state.ready = False
-        st.experimental_rerun()
+        # Instead of immediate rerun, exit early so rerun happens safely
+        st.experimental_set_query_params(code=st.session_state.code)
+        st.stop()
 
 else:
     code = st.session_state.code
@@ -178,18 +180,18 @@ else:
     st.markdown("---")
 
     if st.button("🎮 Switch to another live match"):
-        # Clear only relevant state and return user to landing page safely
+        # Clear relevant session data safely
         for key in ["code", "ready", "last_refresh_ts"]:
             st.session_state.pop(key, None)
         st.experimental_set_query_params()
-        # Use flag to rerun safely (avoids AttributeError on rerun)
+        # Flag safe reset and stop current execution to avoid AttributeError
         st.session_state.reset_app = True
+        st.stop()
 
 # Safe rerun handler
 if st.session_state.get("reset_app"):
     st.session_state.reset_app = False
     st.experimental_rerun()
-
     st.markdown("---")
     st.markdown(
         "<div style='text-align: center; font-size: 14px; color: gray;'>"
