@@ -7,6 +7,7 @@ import firebase_admin
 from firebase_admin import credentials, db
 
 REFRESH_SEC = 5
+st_autorefresh_interval = st.autorefresh(interval=REFRESH_SEC * 1000, key="refresh_auto")
 
 st.set_page_config(page_title="🏓 Live Pickle Round Viewer", layout="centered")
 col1, col2 = st.columns([1, 8])
@@ -65,12 +66,6 @@ if not code:
         code = typed
     else:
         st.stop()
-
-# Reliable auto-refresh using Streamlit built-in mechanism
-try:
-    st.autorefresh(interval=REFRESH_SEC * 1000, key="auto_refresh_viewer")
-except Exception:
-    st.write("")  # fallback no-op if autorefresh fails
 
 if "last_refresh_ts" not in st.session_state:
     st.session_state.last_refresh_ts = 0.0
@@ -137,6 +132,12 @@ for i, court in enumerate(courts, 1):
 
 if benched:
     st.write(f"🪑 Benched: {', '.join(benched)}")
+
+st.markdown("---")
+if st.button("🎮 Join another match"):
+    st.experimental_set_query_params(code="")
+    st.session_state.clear()
+    st.rerun()
 
 # Compute a friendly last-updated string from available fields
 last_updated_text = None
