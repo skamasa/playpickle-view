@@ -90,15 +90,27 @@ def init_firebase():
         })
 
 init_firebase()
+# Ensure code is treated as string key
+ref_path = f"/rooms/live/{str(code)}"
 try:
-    ref = db.reference(f"/rooms/live/{code}")
+    ref = db.reference(ref_path)
     data = ref.get()
+    if not data:
+        # Try numeric variant if string key missing
+        alt_ref_path = f"/rooms/live/{int(code)}" if code.isdigit() else None
+        if alt_ref_path:
+            alt_ref = db.reference(alt_ref_path)
+            data = alt_ref.get()
+            if data:
+                ref_path = alt_ref_path
+    if not data:
+        available_rooms = db.reference("/rooms/live").get()
+        keys = list(available_rooms.keys()) if isinstance(available_rooms, dict) else []
+        st.warning(f"🤪 When in doubt, it’s in — but this code? Definitely out! "
+                   f"(Checked: {ref_path}). Available codes: {', '.join(map(str, keys)) or 'none'}")
+        st.stop()
 except Exception as e:
     st.error(f"❌ Firebase fetch error: {e}")
-    st.stop()
-
-if not data:
-    st.warning("🤪 When in doubt, it’s in. But this code? Definitely out!")
     st.stop()
 
 round_no = data.get("round", "?")
