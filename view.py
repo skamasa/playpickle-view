@@ -70,7 +70,7 @@ if typed_code and len(typed_code) == 3 and typed_code != st.session_state.code:
     st.session_state.trigger_rerun = True
 if st.session_state.get("trigger_rerun"):
     st.session_state.trigger_rerun = False
-    st.experimental_rerun()
+    st.rerun()
 
 code = st.session_state.code
 if not code:
@@ -125,7 +125,7 @@ st.markdown(f"### 🥒 *COME ON!!!* Here’s what’s cooking for **{group_name}
 st.subheader(f"🏓 Round {round_no}")
 st.markdown("Want to see who’s serving next? Tap **Refresh Now** to view the current round!")
 if st.button("🔄 Refresh Now"):
-    st.experimental_rerun()
+    st.rerun()
 
 for i, court in enumerate(courts, 1):
     players = []
@@ -171,11 +171,11 @@ if st.button("🎮 Switch to another live match"):
         st.session_state.pop(key, None)
     st.experimental_set_query_params()
     time.sleep(0.3)
-    st.experimental_rerun()
+    st.rerun()
 
 # Add Quick Refresh button at the bottom, just before branding footer
 if st.button("🔄 Quick Refresh", key="quick_refresh", help="Reload live data without resetting session"):
-    st.experimental_rerun()
+    st.rerun()
 
 st.markdown("---")
 st.markdown(
