@@ -1,12 +1,5 @@
-streamlit
+streamlit==1.39.0
 pandas
-firebase-admin
+firebase-admin==6.5.0
 Pillow
-requestsimport time
-
-refresh_interval = 5  # seconds
-if "last_refresh" not in st.session_state:
-    st.session_state.last_refresh = time.time()
-elif time.time() - st.session_state.last_refresh > refresh_interval:
-    st.session_state.last_refresh = time.time()
-    st.experimental_rerun()
+requests
