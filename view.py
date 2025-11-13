@@ -76,13 +76,24 @@ def get_room_data(code):
 
 init_firebase()
 
-# TEMP: Always load test room '999'
-code = "999"
-data = get_room_data(code)
+# Auto-load the latest live match (no code required)
+live_data = db.reference("/rooms/live").get() or {}
 
-if not data:
-    st.warning("🤪 When in doubt, it’s in — but this code? Definitely out!")
-else:
+if not live_data:
+    st.warning("No live games at this moment.")
+    live_data = {}
+
+latest_code = None
+data = None
+
+if live_data:
+    latest_code = max(
+        live_data.keys(),
+        key=lambda c: live_data[c].get("timestamp_epoch", 0)
+    )
+    data = live_data.get(latest_code)
+
+if data:
     round_no = data.get("round", "?")
     courts = data.get("courts", [])
     benched = data.get("benched", [])
@@ -90,7 +101,7 @@ else:
     st.markdown(
         f"""
         <div style='display: flex; align-items: center; gap: 12px; height: 100%; margin-top: 10px;'>
-            <h1 style='margin: 0;'>Live Match Viewer — Code {code}</h1>
+            <h1 style='margin: 0;'>Live Match Viewer — Code {latest_code}</h1>
             <div class='live-badge'><div class='live-dot'></div>LIVE</div>
         </div>
         """,
