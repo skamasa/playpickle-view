@@ -12,6 +12,21 @@ REFRESH_SEC = 5
 if "last_refresh" not in st.session_state:
     st.session_state.last_refresh = time.time()
 
+def safe_rerun():
+    """
+    Cross-version safe rerun helper for Streamlit.
+    Uses st.rerun() when available, falls back to st.experimental_rerun().
+    Any unexpected errors are swallowed to avoid crashing the viewer.
+    """
+    try:
+        if hasattr(st, "rerun"):
+            st.rerun()
+        elif hasattr(st, "experimental_rerun"):
+            st.experimental_rerun()
+    except Exception:
+        # On Streamlit Cloud, avoid surfacing rerun-related crashes
+        pass
+
 col1, col2 = st.columns([1, 8])
 try:
     logo = Image.open("assets/pickleballrandom.png")
@@ -114,7 +129,7 @@ if data:
     st.subheader(f"🏓 Round {round_no}")
     st.markdown("Want to see who’s serving next? Tap **Refresh Now** to view the current round!")
     if st.button("🔄 Refresh Now"):
-        st.experimental_rerun()
+        safe_rerun()
 
     for i, court in enumerate(courts, 1):
         players = []
@@ -158,7 +173,7 @@ if data:
 # Safe rerun handler
 if st.session_state.get("force_rerun"):
     st.session_state.force_rerun = False
-    st.experimental_rerun()
+    safe_rerun()
 
 st.markdown("---")
 st.markdown(
