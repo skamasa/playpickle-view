@@ -101,7 +101,7 @@ if data:
     st.markdown(
         f"""
         <div style='display: flex; align-items: center; gap: 12px; height: 100%; margin-top: 10px;'>
-            <h1 style='margin: 0;'>Live Match Viewer — Code {latest_code}</h1>
+            <h1 style='margin: 0;'>Live Playpickle Viewer</h1>
             <div class='live-badge'><div class='live-dot'></div>LIVE</div>
         </div>
         """,
